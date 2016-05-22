@@ -1,0 +1,14 @@
+{
+    "sourceMaps": false,
+    "sourceRoot": "./src",
+    "code": true,
+    "presets": ["es2015"],
+    "plugins": [
+    ],
+    "env": {
+        "development": {
+        },
+        "production": {
+        }
+    }
+}

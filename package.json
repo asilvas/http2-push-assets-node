@@ -1,0 +1,30 @@
+{
+  "name": "http2-push-assets",
+  "version": "0.1.0",
+  "description": "",
+  "main": "lib/index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "build": "babel ./src --out-dir ./lib",
+    "client": "node ./local/benchmark-run.js --url \"https://localhost:1121/?enabled=true&delay=500\"",
+    "client-dynamic": "node ./local/benchmark-run.js --url \"https://localhost:1121/?enabled=true&delay=500&dynamic=true\"",
+    "client-disabled": "node ./local/benchmark-run.js --url \"https://localhost:1121/?enabled=false&delay=500\"",
+    "prepublish": "npm run build",
+    "start": "node ./local/server.js",
+    "test": "mocha",
+    "watch": "babel ./src --watch --out-dir ./lib"
+  },
+  "author": "Aaron Silvas",
+  "license": "MIT",
+  "devDependencies": {
+    "babel-cli": "^6.5.1",
+    "babel-preset-es2015": "^6.5.0"
+  },
+  "dependencies": {
+    "htmlparser2": "^3.9.0",
+    "http2": "^3.3.2",
+    "parseurl": "^1.3.1"
+  }
+}

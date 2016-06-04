@@ -10,7 +10,6 @@ export default function pushAssets(connect, req, res, requestAssets, pageAssets)
     let newHeaders = {
       referrer: req.url
     };
-    newHeaders[constants.PUSH_REQUEST_HEADER] = constants.PUSH_REQUEST_VALUE;
     
     // hash key
     const pushKey = (asset.key && asset.key !== '$' && asset.key) || crypto.createHash('md5').update(assetRoute).digest("hex");
@@ -32,6 +31,7 @@ export default function pushAssets(connect, req, res, requestAssets, pageAssets)
       method: 'GET',
       url: assetRoute,
       originalUrl: req.originalUrl,
+      isPushAsset: true,
       headers: newHeaders
     };
     const pushRes = res.push(assetRoute);

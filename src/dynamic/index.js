@@ -1,4 +1,5 @@
 import htmlparser from 'htmlparser2';
+import zlib from 'zlib';
 import util from '../util';
 
 function Http2DependsDynamic(connect, options) {
@@ -24,29 +25,32 @@ function Http2DependsDynamic(connect, options) {
   });
 
   return function(requestAssets, req, res, next) {
-    console.log('* DYNAMIC HANDLER', req.url);
-    
     const chunks = [];
     var isHtml = false;
+    var isCompressed = false;
     
     const setHeader = res.setHeader;
     res.setHeader = function(name, val) {
-console.log('setHeader', name, val);
       if (/content\-type/i.test(name) && /html/i.test(val)) {
         isHtml = true;
+      } else if (/content\-encoding/i.test(name) && /gzip/i.test(val)) {
+        isCompressed = true;
       }
       setHeader.apply(res, arguments);
     }.bind(res);
     
     const writeHead = res.writeHead;
     res.writeHead = function() {
-console.log('writeHead', arguments);
       if (arguments.length > 1) {
         const lastArg = arguments[arguments.length - 1];
         if (typeof lastArg === 'object') {
           const ct = lastArg['Content-Type'];
           if (ct && /html/i.test(ct)) {
             isHtml = true;
+          }
+          const ce = lastArg['Content-Encoding'];
+          if (ce && /gzip/i.test(ce)) {
+            isCompressed = true;
           }
         } 
       }
@@ -55,12 +59,12 @@ console.log('writeHead', arguments);
     
     const end = res.end;
     res.end = function(chunk) {
-      if (chunk && isHtml) chunks.push(Buffer.isBuffer(chunk) ? chunk.toString() : chunk);
+      if (chunk && isHtml) chunks.push(chunk);
       
       if (isHtml && chunks.length > 0) {
-        const html = chunks.join('');
+        // unzip if necessary
+        const html = isCompressed ? zlib.gunzipSync(Buffer.concat(chunks)).toString() : chunks.join('');
         var pushAssets = {};
-console.log('isHtml=true');
         var parser = new htmlparser.Parser({
           onopentag: function(name, attr) {
             const pushAttribute = attr[options.pushAttribute];
@@ -90,7 +94,6 @@ console.log('isHtml=true');
                   // key is equal to url unless the matching attribute contains a valid key
                   key: pushAttribute && pushAttribute !== '$' ? pushAttribute : '$'
                 };
-                console.log('pushAsset:', asset);
                 pushAssets[assetUrl] = asset;
               }
             }
@@ -108,7 +111,7 @@ console.log('isHtml=true');
     
     const write = res.write;
     res.write = function(chunk) {
-      if (isHtml) chunks.push(Buffer.isBuffer(chunk) ? chunk.toString() : chunk); // only if html
+      if (isHtml) chunks.push(chunk); // only if html
       write.apply(res, arguments);
     }.bind(res);
     

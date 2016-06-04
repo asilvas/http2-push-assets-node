@@ -14,9 +14,9 @@ function Http2DependsConnect(connect, options) {
   ;
   
   return function(req, res, next) {
-    console.log('Http2DependsConnect', req.url);
-    console.log('* httpVersion', req.httpVersion, req.httpVersionMajor);
-    console.log('* Headers', req.headers);
+    //console.log('Http2DependsConnect', req.url);
+    //console.log('* httpVersion', req.httpVersion, req.httpVersionMajor);
+    //console.log('* Headers', req.headers);
     
     if (!req.httpVersionMajor || req.httpVersionMajor < 2) {      
       return void next();
@@ -27,7 +27,7 @@ function Http2DependsConnect(connect, options) {
       // if header not provided (or force not set), this feature is disabled
       return void next();
     }
-    console.log('* ' + constants.REQUEST_HEADER, documents);
+    //console.log('* ' + constants.REQUEST_HEADER, documents);
 
     handler(documents, req, res, next);
   }

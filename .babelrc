@@ -2,7 +2,7 @@
     "sourceMaps": false,
     "sourceRoot": "./src",
     "code": true,
-    "presets": ["es2015"],
+    "presets": ["node6"],
     "plugins": [
     ],
     "env": {
